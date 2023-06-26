@@ -62,6 +62,7 @@ export const createPortal = async (setAllPortals, data) => {
     },
   });
   const { portal } = res.data;
+
   setAllPortals((prev) => [portal, ...prev]);
 };
 
@@ -93,7 +94,6 @@ export const updatePortal = async (portalId, data, setAllPortals) => {
   });
 
   const updatedPortal = res.data.portal;
-
   setAllPortals((prev) => {
     const mappedPortal = prev.map((curr) => {
       if (curr._id === updatedPortal._id) {

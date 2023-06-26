@@ -85,9 +85,17 @@ export const createPortal = async (req, res) => {
       createdBy,
     });
 
+    const populatedPortal = await Portal.findById(portal._id).populate(
+      "createdBy",
+      "name"
+    );
+
     return res
       .status(200)
-      .json({ portal, message: "portal created successfully" });
+      .json({
+        portal: populatedPortal,
+        message: "portal created successfully",
+      });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
