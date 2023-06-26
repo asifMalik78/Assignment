@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { signinUser } from "../apiCalls";
 import { useUserContext } from "../context/userContext";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [formdata, setFormData] = useState({
@@ -9,18 +10,67 @@ const Login = () => {
     password: "",
   });
 
-  const {setUser} = useUserContext();
+  const { setUser } = useUserContext();
+  const toaster = (status, message) => {
+    if (status === 200) {
+      toast.success(message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
 
+      return;
+    }
+
+    if (status === 404 || status === 401 || status === 500) {
+      toast.error(message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      return;
+    }
+  };
+
+  const validEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
   const loginHandler = async (e) => {
     e.preventDefault();
-    await signinUser(setUser , formdata);
-  }
+    if (formdata.email === "" || formdata.password === "") {
+      toaster(500, "all fields are required");
+      return;
+    }
+
+    if (!validEmail(formdata.email)) {
+      toaster(500, "wrong email type");
+      return;
+    }
+
+    if (formdata.email === "" || formdata.password === "") {
+      toast(500, "all fields are required");
+      return;
+    }
+    const { status, message } = await signinUser(setUser, formdata);
+    toaster(status, message);
+  };
   return (
-    <div className="flex flex-col justify-center items-center w-full h-screen gap-10">
-      <h1 className="text-gray-700 text-3xl font-semibold">Login</h1>
+    <div className="flex flex-col items-center justify-center w-full h-screen gap-10">
+      <h1 className="text-3xl font-semibold text-gray-700">Login</h1>
       <form className="flex flex-col w-full max-w-md gap-3">
         <div className="flex flex-col gap-2">
-          <label htmlFor="email" className="text-gray-500 font-medium text-lg">
+          <label htmlFor="email" className="text-lg font-medium text-gray-500">
             Email
           </label>
           <input
@@ -28,6 +78,7 @@ const Login = () => {
             type="email"
             name="email"
             value={formdata.email}
+            required
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
@@ -35,13 +86,13 @@ const Login = () => {
               }))
             }
             placeholder="Enter Your Email"
-            className="border border-gray-400 p-2 rounded-md"
+            className="p-2 border border-gray-400 rounded-md"
           />
         </div>
         <div className="flex flex-col gap-2">
           <label
             htmlFor="password"
-            className="text-gray-500 font-medium text-lg"
+            className="text-lg font-medium text-gray-500"
           >
             Password
           </label>
@@ -57,19 +108,22 @@ const Login = () => {
               }))
             }
             placeholder="Enter Your Email"
-            className="border border-gray-400 p-2 rounded-md"
+            className="p-2 border border-gray-400 rounded-md"
           />
         </div>
 
         <div className="mt-2">
-          <button className="p-2 mb-3 bg-blue-800 text-white rounded-md w-full" onClick={loginHandler}>
+          <button
+            className="w-full p-2 mb-3 text-white bg-blue-800 rounded-md"
+            onClick={loginHandler}
+          >
             Login
           </button>
           <div className="text-gray-600">
             Don't have an account?{" "}
             <NavLink
               to="/register"
-              className="text-blue-900 font-medium cursor-pointer"
+              className="font-medium text-blue-900 cursor-pointer"
             >
               Sign up
             </NavLink>

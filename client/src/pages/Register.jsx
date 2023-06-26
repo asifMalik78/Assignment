@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { registerUser } from "../apiCalls";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [formdata, setFormData] = useState({
@@ -11,16 +12,67 @@ const Register = () => {
 
   const [wronginput, setWrongInput] = useState(false);
 
-  const clickHandler = async (e) => {
-    e.preventDefault();
+  const toaster = (status, message) => {
+    if (status === 200) {
+      toast.success(message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
 
-    const { name, email, password, confirm_password } = formdata;
-    if (password !== confirm_password) {
-      setWrongInput(true);
       return;
     }
 
-    await registerUser({ name, email, password });
+    if (status === 500 || status === 409) {
+      toast.error(message, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
+  };
+
+  const validEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  const clickHandler = async (e) => {
+    e.preventDefault();
+    const { name, email, password, confirm_password } = formdata;
+    if (
+      email === "" ||
+      name === "" ||
+      password === "" ||
+      confirm_password === ""
+    ) {
+      toaster(500, "all fields are required");
+      return;
+    }
+    
+    if (!validEmail(formdata.email)) {
+      toaster(500, "wrong email type");
+      return;
+    }
+
+    if (password !== confirm_password) {
+      setWrongInput(true);
+      toaster(500, "Unequal Password");
+      return;
+    }
+
+    const { status, message } = await registerUser({ name, email, password });
+    toaster(status, message);
   };
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen gap-10">

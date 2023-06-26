@@ -4,16 +4,40 @@ const API_URL = "https://admin-portal-87lp.onrender.com/api";
 
 //login  user
 export const signinUser = async (setUser, data) => {
-  const res = await axios.post(API_URL + "/login", data);
-  const { user, accessToken } = res.data;
-  localStorage.setItem("LoggedUser", JSON.stringify({ ...user, accessToken }));
-  setUser({ ...user, accessToken });
+  try {
+    const res = await axios.post(API_URL + "/login", data);
+    const { user, accessToken } = res.data;
+    localStorage.setItem(
+      "LoggedUser",
+      JSON.stringify({ ...user, accessToken })
+    );
+    setUser({ ...user, accessToken });
+    return {
+      status: res.status,
+      message: res.data.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 };
-
 
 //register user
 export const registerUser = async (data) => {
-  await axios.post(API_URL + "/users", data);
+  try {
+    const res = await axios.post(API_URL + "/users", data);
+    return {
+      status: res.status,
+      message: res.data.message,
+    };
+  } catch (error) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 };
 
 //get all portals
