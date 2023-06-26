@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://admin-portal-87lp.onrender.com/api";
 
 //login  user
 export const signinUser = async (setUser, data) => {
@@ -9,6 +9,7 @@ export const signinUser = async (setUser, data) => {
   localStorage.setItem("LoggedUser", JSON.stringify({ ...user, accessToken }));
   setUser({ ...user, accessToken });
 };
+
 
 //register user
 export const registerUser = async (data) => {
